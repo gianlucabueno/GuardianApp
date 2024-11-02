@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons'; 
-import { 
-  Background, 
-  Container, 
-  Card, 
-  Greetings, 
+import { Ionicons } from '@expo/vector-icons';
+import {
+  Background,
+  Container,
+  Card,
+  Greetings,
   CardContent,
   CardHeader,
   DateText,
@@ -15,7 +15,7 @@ import {
   NextDateText,
   CardContentCenter,
   HorizontalLine,
- } from '../../styles/styles';
+} from '../../styles/styles';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Hamburguer from '../../components/Header';
 
@@ -37,10 +37,10 @@ type NavigationProps = StackNavigationProp<any>
 const Home: React.FC = () => {
   const [readings, setReadings] = useState<Reading[]>([]);
   const [nextread, setNextRead] = useState<Next[]>([]);
-  
+
   const fetchReadings = async () => {
     // Simulação de uma API que retorna as leituras
-    const apiResponse  = [
+    const apiResponse = [
       { id: 1, date: '19/05 22:00', value: 120, unit: 'mg/L' },
       { id: 2, date: '19/05 22:15', value: 90, unit: 'SPO2' },
       { id: 3, date: '19/05 22:30', value: 110, unit: 'mg/L' },
@@ -63,25 +63,55 @@ const Home: React.FC = () => {
       { id: 20, date: '20/05 02:45', value: 74, unit: 'SPO2' }
     ];
 
-    
+
     // Salvando os dados no estado
     setReadings(apiResponse);
-  };  
+  };
+
+  const sortedReadings = [...readings].sort((a, b) => {
+    const [dayA, monthA] = a.date.split(' ')[0].split('/');
+    const [dayB, monthB] = b.date.split(' ')[0].split('/');
+
+    const [hourA, minuteA] = a.date.split(' ')[1].split(':');
+    const [hourB, minuteB] = b.date.split(' ')[1].split(':');
+
+    // Criando objetos Date considerando o ano atual (por exemplo, 2024)
+    const dateA = new Date(2024, parseInt(monthA) - 1, parseInt(dayA), parseInt(hourA), parseInt(minuteA));
+    const dateB = new Date(2024, parseInt(monthB) - 1, parseInt(dayB), parseInt(hourB), parseInt(minuteB));
+
+    return dateB.getTime() - dateA.getTime(); // Ordena de mais recente para mais antigo
+  });
 
   const fetchNext = async () => {
     const apiprResponse = [
       { date: '22/08 15:30', unit: 'mg/dL' }, // Glicose
       { date: '22/08 16:00', unit: 'SPO' }    // Oximetria
     ];
-  
+
     // Modificando as unidades
     const modifiedResponse = apiprResponse.map(item => ({
       date: item.date,
-      unit: item.unit === 'mg/dL' ? 'Glicose' : item.unit === 'SPO' ? 'Oxigenação no Sangue' : item.unit  === 'BPM' ? 'Batimento Cardiaco' : item.unit
+      unit: item.unit === 'mg/dL' ? 'Glicose' : item.unit === 'SPO' ? 'Oxigenação' : item.unit === 'BPM' ? 'Batimento' : item.unit
     }));
-  
+
     setNextRead(modifiedResponse);
   };
+
+
+  const sortedNext = [...nextread].sort((a, b) => {
+    const [dayA, monthA] = a.date.split(' ')[0].split('/');
+    const [dayB, monthB] = b.date.split(' ')[0].split('/');
+
+    const [hourA, minuteA] = a.date.split(' ')[1].split(':');
+    const [hourB, minuteB] = b.date.split(' ')[1].split(':');
+
+    // Criando objetos Date considerando o ano atual (por exemplo, 2024)
+    const dateA = new Date(2024, parseInt(monthA) - 1, parseInt(dayA), parseInt(hourA), parseInt(minuteA));
+    const dateB = new Date(2024, parseInt(monthB) - 1, parseInt(dayB), parseInt(hourB), parseInt(minuteB));
+
+    return dateB.getTime() - dateA.getTime(); // Ordena de mais recente para mais antigo
+  });
+
   
 
 
@@ -91,39 +121,39 @@ const Home: React.FC = () => {
   }, []);
 
   // Função para renderizar cada leitura
-  
 
-  
-  return(  
+
+
+  return (
     <Background>
       <Container>
-      <Hamburguer />
+        <Hamburguer />
         <Greetings>Ola, Paulo</Greetings>
         <Card>
           <CardHeader>Últimas Leituras</CardHeader>
-          {readings.slice(0, 5).map((item, index) => (
-            <View key={index} style={{ flexDirection: 'row', alignItems: 'center', justifyContent:'center',paddingVertical: 5, borderBottomWidth: 1, }}>
+          {sortedReadings.slice(0, 5).map((item, index) => (
+            <View key={index} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 5, borderBottomWidth: 1, }}>
               <Text></Text>
-              <DateText style={{textAlign: 'left' }}>{item.date}</DateText>
-              
+              <DateText style={{ textAlign: 'left' }}>{item.date}</DateText>
+
               <ValueText style={{ width: 60, textAlign: 'center' }}>{item.value}</ValueText>
               <ValueText style={{ width: 60, textAlign: 'left' }}>{item.unit}</ValueText>
             </View>
           ))}
         </Card>
 
-        <Card>
+        {/*<Card>
           <CardHeader>Proxima Leitura</CardHeader>
-          {nextread.map((item, index) => (
-            <View key={index} style={{ flexDirection: 'row', alignItems: 'center',justifyContent:'center',paddingVertical: 5, borderBottomWidth: 1}}>
+          {sortedNext.map((item, index) => (
+            <View key={index} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 5, borderBottomWidth: 1 }}>
               <ValueText>{item.unit} :</ValueText>
               <ValueText>{" "}</ValueText>
               <DateText>{item.date}</DateText>
-              
-              
+
+
             </View>
           ))}
-        </Card>
+        </Card>*/}
       </Container>
     </Background>
   )

@@ -8,21 +8,23 @@ export const Background = styled.View`
 export const Container = styled.KeyboardAvoidingView`
   flex:1;
   align-items: center;
-  justify-content: center
+  justify-content: center;
+  position: relative;
 `;
 
 export const AreaInput = styled.View`
   flex-direction: row;
+  background-color: #FFF;
+  border-radius: 20px; /* Bordas arredondadas */
+  margin-bottom: 15px; /* Espaçamento inferior */
+  width: 90%;
+  padding: 10px;
 `;
 
 export const Input = styled.TextInput`
-  background-color: #FFF;
-  width: 90%;
   font-size: 17px;
-  padding: 10px;
-  border-radius: 20px;
   color: #121212;
-  margin-bottom: 15px;
+   border: none;
 `;
 
 export const SubmitButton = styled.TouchableOpacity`

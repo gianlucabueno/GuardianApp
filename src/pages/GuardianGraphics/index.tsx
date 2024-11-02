@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, FlatList, TextInput, Modal, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Background, AreaInput, Input, Container, SubmitButton, SubmitText, LinkText, Link, Card, CardHeader } from '../../styles/styles';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { VictoryAxis, VictoryChart, VictoryLabel, VictoryLine, VictoryScatter, VictoryTheme, VictoryTooltip } from 'victory-native';
@@ -35,9 +35,13 @@ const data = [
 
 
 
+interface GuardianFormProps {
+  route: RouteProp<{ params: { id: number } }, 'params'>;
+}
 
-
-const Chart: React.FC = () => {
+const GuardianGraphics: React.FC <GuardianFormProps> = ({ route }) => {
+  const { id } = route.params;
+  console.log(id)
   const [selectedType, setSelectedType] = useState<string>('Glicose')
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState(data);
@@ -70,20 +74,20 @@ const Chart: React.FC = () => {
     const sortedData = [...filteredData].sort((a, b) => {
       const [dayA, monthA] = a.date.split(' ')[0].split('/');
       const [dayB, monthB] = b.date.split(' ')[0].split('/');
-
+      
       const [hourA, minuteA] = a.date.split(' ')[1].split(':');
       const [hourB, minuteB] = b.date.split(' ')[1].split(':');
-
+    
       // Criando objetos Date considerando o ano atual (por exemplo, 2024)
       const dateA = new Date(2024, parseInt(monthA) - 1, parseInt(dayA), parseInt(hourA), parseInt(minuteA));
       const dateB = new Date(2024, parseInt(monthB) - 1, parseInt(dayB), parseInt(hourB), parseInt(minuteB));
-
+    
       return dateB.getTime() - dateA.getTime(); // Ordena de mais recente para mais antigo
     });
 
-    const latestDatas = sortedData.slice(0, 8);
+    const latestDatas = sortedData.slice(0, 7);
 
-    setLastDatas(latestDatas.reverse());
+    setLastDatas(latestDatas);
     setMaxValue(latestDatas.length > 0 ? Math.max(...latestDatas.map(item => item.value)) : 0);
 
     console.log(latestDatas)
@@ -134,7 +138,7 @@ const Chart: React.FC = () => {
           </ModalContainer>
         </Modal>
         <Card>
-          <CardHeader>Gráfico de Dados</CardHeader>
+        <CardHeader>Gráfico de Dados</CardHeader>
           <View style={{ alignItems: 'center', justifyContent: 'center', height: 200 }}>
             {lastDatas.length > 0 ? ( // Verifica se há dados disponíveis
               <VictoryChart
@@ -204,7 +208,6 @@ const Chart: React.FC = () => {
             )}
           </View>
         </Card>
-
       </Container >
     </Background>
   );
@@ -212,7 +215,7 @@ const Chart: React.FC = () => {
 
 
 
-export default Chart;
+export default GuardianGraphics;
 
 export const IconButton = styled(TouchableOpacity)`
   margin-left: 10px;

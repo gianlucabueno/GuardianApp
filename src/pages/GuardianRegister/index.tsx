@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, FlatList, TextInput, Modal, } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Background, AreaInput, Input, Container, SubmitButton, SubmitText, LinkText, Link, CardHeader, Card, DateText, ValueText } from '../../styles/styles';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Hamburguer from '../../components/Header';
@@ -11,6 +11,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 
 type NavigationProps = StackNavigationProp<any>
 
+
 interface Reading {
   id: number
   date: string;
@@ -18,42 +19,26 @@ interface Reading {
   unit: string;
 }
 
-const handleDelete = (item: Reading) => {
-  Alert.alert(
-    'Confirmar Exclusão',
-    'Tem certeza de que deseja excluir esta leitura?',
-    [
-      {
-        text: 'Cancelar',
-        style: 'cancel',
-      },
-      {
-        text: 'Excluir',
-        onPress: () => {
-          console.log('Excluir:', item.id);
-        },
-      },
-    ],
-    { cancelable: false }
-  );
-};
+interface GuardianFormProps {
+  route: RouteProp<{ params: { id: number } }, 'params'>;
+}
 
-
-const Medicoes: React.FC = () => {
+const GuardianRegister: React.FC<GuardianFormProps> = ({ route }) => {
+  const { id } = route.params;
+  console.log(id)
   const navigation = useNavigation<NavigationProps>();
   const [selectedType, setSelectedType] = useState<string>('Todas');
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const [readings, setReadings] = useState<Reading[]>([]);
 
 
+
+
   const options = ['Todas', 'Glicose', 'Oxigenação', 'Batimento'];
 
-  const handleEdit = (item: Reading) => {
-    navigation.navigate('MediçõesForm', { id: item.id });
-  };
 
   const handleGraph = () => {
-    navigation.navigate('Graficos');
+    navigation.navigate('GuaGraficos', { id });
   }
 
 
@@ -191,8 +176,7 @@ const Medicoes: React.FC = () => {
           </Icon>
         </IconContainer>*/}
 
-
-
+          
         <Card>
           <CardHeader>Últimas Leituras</CardHeader>
           <ScrollView style={{ maxHeight: 300 }}>
@@ -202,17 +186,11 @@ const Medicoes: React.FC = () => {
                 <DateText style={{ textAlign: 'left' }}>{item.date}</DateText>
                 <ValueText style={{ width: 60, textAlign: 'center' }}>{item.value}</ValueText>
                 <ValueText style={{ width: 60, textAlign: 'left' }}>{item.unit}</ValueText>
-                <TouchableOpacity onPress={() => handleEdit(item)}>
-                  <Ionicons name="pencil" color="#002754" size={25} />
-                </TouchableOpacity>
-                <ValueText>{" "}</ValueText>
-                <TouchableOpacity onPress={() => handleDelete(item)}>
-                  <Ionicons name="trash" color="#002754" size={25} />
-                </TouchableOpacity>
               </View>
             ))}
           </ScrollView>
         </Card>
+
         <ButtonContainer>
           <RoundButton onPress={() => handleGraph()}>
             <Entypo name="bar-graph" size={24} color="white" />
@@ -223,7 +201,7 @@ const Medicoes: React.FC = () => {
   );
 };
 
-export default Medicoes;
+export default GuardianRegister;
 
 export const SearchBar = styled.View`
   flex-direction: row;
@@ -312,7 +290,7 @@ export const ButtonContainer = styled.View`
   flex-direction: row;
   justify-content: flex-end; /* Alinha o botão à direita */
   margin-top: 20px;
-  padding-right: 20px; /* Adiciona um pouco de espaçamento à direita */
+  padding-right: 10px; /* Adiciona um pouco de espaçamento à direita */
   position: absolute; /* Faz o contêiner se posicionar absoluto */
   bottom: 80px; /* Distância do fundo */
   right: 15px; /* Distância da direita */

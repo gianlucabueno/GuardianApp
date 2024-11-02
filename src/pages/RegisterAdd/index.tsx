@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, FlatList, Text, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
@@ -6,8 +6,8 @@ import { Container } from '../Menu/styles';
 import { Background, Card, CardHeader } from '../../styles/styles';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Hamburguer from '../../components/Header';
-import { RouteProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
 
 
 
@@ -72,113 +72,45 @@ const ButtonContainer = styled.View`
   margin-top: 20px; 
 `;
 
-interface MedicoesFormProps {
-  route: RouteProp<{ params: { id: number } }, 'params'>;
-}
 
-interface Reading {
-  id: number
-  date: string;
-  value: number;
-  unit: string;
-}
 
 type NavigationProps = StackNavigationProp<any>
 
+
 const options = ['Glicose', 'Oxigenação', 'Batimento'];
 
-const RegisterEdit: React.FC<MedicoesFormProps> = ({ route }) => {
-  const { id } = route.params;
-  console.log(id)
+const RegisterAdd: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>('');
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string>('');
-  const [readings, setReadings] = useState<Reading[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string>('Selecione data e hora');
   const [selectedValue, setSelectedValue] = useState('');
   const navigation = useNavigation<NavigationProps>();
 
-  const fetchReadings = async () => {
-    // Simulação de uma API que retorna as leituras
-    const apiResponse = [
-      { id: 1, date: '19/05/2024 22:00', value: 120, unit: 'mg/L' },
-      { id: 2, date: '19/05/2024  22:15', value: 90, unit: 'SPO2' },
-      { id: 3, date: '19/05/2024  22:30', value: 110, unit: 'mg/L' },
-      { id: 4, date: '19/05/2024  22:45', value: 75, unit: 'SPO2' },
-      { id: 5, date: '19/05/2024  23:00', value: 130, unit: 'mg/L' },
-      { id: 6, date: '19/05/2024  23:15', value: 85, unit: 'SPO2' },
-      { id: 7, date: '19/05/2024  23:30', value: 115, unit: 'mg/L' },
-      { id: 8, date: '19/05/2024  23:45', value: 80, unit: 'SPO2' },
-      { id: 9, date: '20/05/2024  00:00', value: 125, unit: 'mg/L' },
-      { id: 10, date: '20/05/2024  00:15', value: 70, unit: 'SPO2' },
-      { id: 11, date: '20/05/2024  00:30', value: 135, unit: 'mg/L' },
-      { id: 12, date: '20/05/2024  00:45', value: 78, unit: 'SPO2' },
-      { id: 13, date: '20/05/2024  01:00', value: 122, unit: 'mg/L' },
-      { id: 14, date: '20/05/2024  01:15', value: 82, unit: 'SPO2' },
-      { id: 15, date: '20/05/2024  01:30', value: 119, unit: 'mg/L' },
-      { id: 16, date: '20/05/2024  01:45', value: 76, unit: 'SPO2' },
-      { id: 17, date: '20/05/2024  02:00', value: 121, unit: 'mg/L' },
-      { id: 18, date: '20/05/2024  02:15', value: 88, unit: 'SPO2' },
-      { id: 19, date: '20/05/2024  02:30', value: 128, unit: 'mg/L' },
-      { id: 20, date: '20/05/2024  02:45', value: 74, unit: 'SPO2' }
-    ];
+  const handleInputChange = (text: string) => {
+    // Permite números e o ponto (.) para números decimais
+    const numericValue = text.replace(/[^0-9.]/g, '');
 
-    const readings = apiResponse.filter(reading => reading.id === id);
-    console.log(readings)
-
-    setReadings(readings);
-  };
-
-
-  useEffect(() => {
-    fetchReadings();
-  }, []);
-
-
-
-
-
-
-  const handleSave = () => {
-    let option: string;
-    option = " "
-    if (selectedType === 'Glicose') {
-      option = 'mg/L'; // Filtra Glicose apenas por unidade 'mg/L'
-    }
-    if (selectedType === 'Oxigenação') {
-      option = 'SPO2'; // Filtra Oxigenação apenas por unidade 'SPO2'
-    }
-    if (selectedType === 'Batimento') {
-      option = 'BPM'; // Filtra Batimento apenas por unidade 'BPM'
-    }
-
-    console.log("Valor atualizado:", selectedValue);
-    console.log("Data atualizada:", selectedDate);
-    console.log("Tipo atualizado:", option);
-    try {
-      // Mostra o alerta e navega após o usuário pressionar OK
-      Alert.alert(
-        'Sucesso',
-        'Medição editada com sucesso!',
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('MediçõesTable') // Navega após o OK
-          }
-        ]
-      );
-
-      // Limpa os campos após salvar
-      setSelectedValue(" ");
-      setSelectedDate(" ");
-      setSelectedType(" ");
-
-    } catch (error) {
-      console.error('Erro ao salvar a medição:', error);
-      alert('Erro ao salvar a medição. Tente novamente.');
+    // Para evitar múltiplos pontos
+    const parts = numericValue.split('.');
+    if (parts.length > 2) {
+      setSelectedValue(parts[0] + '.' + parts.slice(1).join(''));
+    } else {
+      setSelectedValue(numericValue);
     }
   };
 
+
+  const handleSelectOption = (option: string) => {
+    setSelectedType(option);
+    setShowDropdown(false); // Fecha o dropdown após selecionar
+  };
+
+  const handleConfirm = (date: Date) => {
+    const formattedDate = date.toLocaleString(); // Formato de data e hora
+    setSelectedDate(formattedDate);
+    hideDatePicker();
+  };
 
   const showDatePicker = () => {
     setIsVisible(true);
@@ -188,46 +120,62 @@ const RegisterEdit: React.FC<MedicoesFormProps> = ({ route }) => {
     setIsVisible(false);
   };
 
-
-  useEffect(() => {
-    // Verifica se filteredReading não está vazio e acessa o valor da primeira leitura
-    if (readings && readings.length > 0) {
-      setSelectedValue(readings[0].value.toString());
-      setSelectedDate(readings[0].date.toLocaleString());// Acessa o valor da primeira leitura
-      if (readings[0].unit.toString() === 'mg/L') {
-        setSelectedType('Glicose'); // Filtra Glicose apenas por unidade 'mg/L'
-      }
-      if (readings[0].unit.toString() === 'SPO2') {
-
-        setSelectedType('Oxigenação') // Filtra Oxigenação apenas por unidade 'SPO2'
-      }
-      if (readings[0].unit.toString() === 'BPM') {
-        setSelectedType('Batimento')  // Filtra Batimento apenas por unidade 'BPM'
-      }
+  const handleSave = async () => {
+    let option: string = ""; // Inicializa a variável option
+  
+    // Define a unidade com base no tipo selecionado
+    if (selectedType === 'Glicose') {
+      option = 'mg/L'; // Filtra Glicose apenas por unidade 'mg/L'
+    } else if (selectedType === 'Oxigenação') {
+      option = 'SPO2'; // Filtra Oxigenação apenas por unidade 'SPO2'
+    } else if (selectedType === 'Batimento') {
+      option = 'BPM'; // Filtra Batimento apenas por unidade 'BPM'
     }
-  }, [readings]);
-
-  const handleInputChange = (text: string) => {
-    setSelectedValue(text); // Atualiza o estado conforme o usuário altera o campo
+  
+    // Verifica se todos os campos estão preenchidos
+    if (!selectedType || !selectedValue || !selectedDate) {
+      alert('Por favor, preencha todos os campos.');
+      return;
+    }
+  
+    const measurement = {
+      examType: selectedType,
+      examValue: selectedValue,
+      examUnit: option, // Adiciona a unidade ao objeto
+      examDate: selectedDate, // Adiciona a data ao objeto
+    };
+  
+    try {
+    
+      // Mostra o alerta e navega após o usuário pressionar OK
+      Alert.alert(
+        'Sucesso',
+        'Medição salva com sucesso!',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('MediçõesTable') // Navega após o OK
+          }
+        ]
+      );
+  
+      // Limpa os campos após salvar
+      setSelectedValue(" ");
+      setSelectedDate(" ");
+      setSelectedType(" ");
+      
+    } catch (error) {
+      console.error('Erro ao salvar a medição:', error);
+      alert('Erro ao salvar a medição. Tente novamente.');
+    }
   };
-  const handleConfirm = (date: Date) => {
-    const formattedDate = date.toLocaleString(); // Formato de data e hora
-    setSelectedDate(formattedDate);
-    hideDatePicker();
-  };
-
-  const handleSelectOption = (option: string) => {
-    setSelectedType(option);
-    setShowDropdown(false); // Fecha o dropdown após selecionar
-  };
-
 
   return (
     <Background>
       <Container>
         <Hamburguer />
         <Card>
-          <CardHeader>Editar Medição</CardHeader>
+          <CardHeader>Adicionar Medição</CardHeader>
 
           <InputContainer>
             <InputField
@@ -280,7 +228,7 @@ const RegisterEdit: React.FC<MedicoesFormProps> = ({ route }) => {
           </InputContainer>
 
           <ButtonContainer>
-            <SubmitButton onPress={handleSave}>
+            <SubmitButton activeOpacity={0.8} onPress={handleSave}>
               <SubmitText>Salvar</SubmitText>
             </SubmitButton>
           </ButtonContainer>
@@ -290,7 +238,6 @@ const RegisterEdit: React.FC<MedicoesFormProps> = ({ route }) => {
   );
 };
 
-export default RegisterEdit;
-
+export default RegisterAdd;
 
 

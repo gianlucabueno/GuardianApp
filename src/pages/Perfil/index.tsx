@@ -32,15 +32,15 @@ const Perfil: React.FC = () => {
     const usersResponse = [
       {
         id: 1,
-        name: 'Alice Silva',
-        email: 'alice.silva@example.com',
+        name: 'Paulo Antunes',
+        email: 'pAntunes.uel@example.com',
         password: 'senha123',
         birthAt: '1995-06-15',
         createdAt: '2024-10-15T10:00:00Z',
         updatedAt: '2024-10-15T10:00:00Z',
         role: 1,
-        height: 165,
-        weight: 60.5,
+        height: 185,
+        weight: 85.2,
       },
     ];
 

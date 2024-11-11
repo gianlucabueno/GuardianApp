@@ -7,6 +7,8 @@ import { VictoryAxis, VictoryChart, VictoryLabel, VictoryLine, VictoryScatter, V
 import Hamburguer from '../../components/Header';
 import styled from 'styled-components';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../../services/api';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -34,20 +36,52 @@ const data = [
 ];
 
 
-
+interface Reading {
+  measurement_ID: number;
+  measurementDate: string;
+  value: number;
+  unit: string;
+}
 
 
 const Chart: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>('Glicose')
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState(data);
-  const [lastDatas, setLastDatas] = useState(filteredData.slice(0, 7)); // Estado para os últimos dados
+  const [readings, setReadings] = useState<Reading[]>([]);
+  const [lastDatas, setLastDatas] = useState(readings.slice(0, 7)); // Estado para os últimos dados
   const [maxValue, setMaxValue] = useState(0); // Estado para o valor máximo
 
 
   const handleSelectOption = (option: string) => {
     setSelectedType(option);
     setShowDropdown(false); // Fecha o dropdown após selecionar
+  };
+
+  const fetchReadings = async () => {
+    try {
+      // Fazendo a requisição para a API para obter os dados
+      const userID = await AsyncStorage.getItem('@userID');
+      const response = await api.get(`/measuringData/user/${userID}`);  // Ajuste a URL de acordo com a API
+      // Verifique se a resposta foi bem-sucedida
+      if (response.status === 200) {
+        const formattedData = response.data.map((item:Reading) => {
+          const { measurement_ID, measurementDate, value, unit } = item;
+          return {
+            measurement_ID,
+            measurementDate,
+            value,
+            unit,
+          };
+        });
+        console.log("formattedData: ",formattedData)
+        setReadings(formattedData.reverse());
+      } else {
+        console.error('Erro ao obter as leituras:', response.status);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar leituras:', err);
+    }
   };
 
   useEffect(() => {
@@ -66,29 +100,17 @@ const Chart: React.FC = () => {
 
 
   useEffect(() => {
-    // Ordena os dados filtrados e pega os últimos 7 valores e o valor máximo
-    const sortedData = [...filteredData].sort((a, b) => {
-      const [dayA, monthA] = a.date.split(' ')[0].split('/');
-      const [dayB, monthB] = b.date.split(' ')[0].split('/');
+    fetchReadings();
+    const latestDatas = readings.slice(0, 8);
 
-      const [hourA, minuteA] = a.date.split(' ')[1].split(':');
-      const [hourB, minuteB] = b.date.split(' ')[1].split(':');
-
-      // Criando objetos Date considerando o ano atual (por exemplo, 2024)
-      const dateA = new Date(2024, parseInt(monthA) - 1, parseInt(dayA), parseInt(hourA), parseInt(minuteA));
-      const dateB = new Date(2024, parseInt(monthB) - 1, parseInt(dayB), parseInt(hourB), parseInt(minuteB));
-
-      return dateB.getTime() - dateA.getTime(); // Ordena de mais recente para mais antigo
-    });
-
-    const latestDatas = sortedData.slice(0, 8);
-
-    setLastDatas(latestDatas.reverse());
+    setLastDatas(latestDatas);
     setMaxValue(latestDatas.length > 0 ? Math.max(...latestDatas.map(item => item.value)) : 0);
 
-    console.log(latestDatas)
+    console.log("latestDatas: ",latestDatas)
 
   }, [filteredData]);
+
+
 
 
 
@@ -179,14 +201,14 @@ const Chart: React.FC = () => {
                   }}
                 />
                 <VictoryLine
-                  data={lastDatas.map(item => ({ x: item.date, y: item.value }))} // Mapeia os dados para o gráfico
+                  data={lastDatas.map(item => ({ x: item.measurementDate, y: item.value }))} // Mapeia os dados para o gráfico
                   style={{
                     data: { stroke: "#87ceeb", strokeWidth: 3 }, // Define a cor e a largura da linha
                     parent: { border: "1px solid #ccc" }, // Borda do gráfico
                   }}
                 />
                 <VictoryScatter
-                  data={lastDatas.map(item => ({ x: item.date, y: item.value }))} // Mapeia os dados para os pontos
+                  data={lastDatas.map(item => ({ x: item.measurementDate, y: item.value }))} // Mapeia os dados para os pontos
                   size={5}
                   style={{ data: { fill: "#87ceeb" } }} // Cor dos pontos
                   labels={({ datum }) => `${datum.y}`} // Rótulo dos pontos

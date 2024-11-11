@@ -21,3 +21,19 @@ export const LinkText = styled.Text`
   font-size: 30px;
   font-weight: bold;
 `;
+
+
+export const SubmitButton = styled.TouchableOpacity`
+  width: 50%;
+  height: 45px;
+  border-radius: 20px;
+  background-color:  #002754;
+  margin-top: 10px;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const SubmitText = styled.Text`
+  font-size: 20px;
+  color: #FFF;
+`;
